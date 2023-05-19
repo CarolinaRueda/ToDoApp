@@ -1,76 +1,89 @@
-import Nav from "./Nav";
-import Svg from "./Svg";
-import { FC } from "react";
-import Task from "./Task";
-import PriorityTodo from "./PriorityContainer";
-import DoneTodo from "./DoneTodo";
+import Nav from "../components/Nav";
+import Svg from "../components/Svg";
+import { ChangeEvent, FC, useState } from "react";
+import Task from "../components/Task";
+import PriorityContainer from "../components/PriorityContainer";
+import DoneTodo from "../components/DoneTodo";
 import { v4 as uuidv4 } from "uuid";
+import { useEffect } from "react";
 
-interface DashProps {
-  dark: boolean;
-  setDark: () => void;
-}
+const Dashboard: FC = () => {
+  const [dark, setDark] = useState(false);
+  const [todo, setTodo] = useState("");
+  const [priority, setPriority] = useState("none");
+  const [todoList, setTodoList] = useState<Array<ITodo>>([]);
 
-interface ITodo {
-  todo: string;
-  priority: string;
-  check: boolean;
-  id: string;
-}
+  //load todos
+  useEffect(() => {
+    const jsonTodos = localStorage.getItem("todos") || JSON.stringify([]);
+    const localTodos = JSON.parse(jsonTodos);
+    setTodoList(localTodos);
+  }, []);
 
-const Dashboard: FC<DashProps> = ({ dark, setDark }) => {
-  const testTodos: ITodo[] = [
-    {
-      todo: "make dinner",
-      priority: "medium",
-      check: true,
-      id: uuidv4(),
-    },
-    {
-      todo: "take a shower",
-      priority: "none",
+  //set todos
+  useEffect(() => {
+    if (!todoList.length) return;
+    localStorage.setItem("todos", JSON.stringify(todoList));
+  }, [todoList]);
+
+  const handleTodo = (e: ChangeEvent<HTMLInputElement>) => {
+    setTodo(e.target.value);
+  };
+
+  const handlePriority = (e: ChangeEvent<HTMLInputElement>) => {
+    setPriority(e.target.value);
+  };
+
+  const addTodo = (): void => {
+    if (!todo) return;
+    const newTodo = {
+      todo: todo,
+      priority: priority,
       check: false,
       id: uuidv4(),
-    },
-    {
-      todo: "programming",
-      priority: "high",
-      check: false,
-      id: uuidv4(),
-    },
-    {
-      todo: "exercise",
-      priority: "low",
-      check: false,
-      id: uuidv4(),
-    },
-    {
-      todo: "kill max",
-      priority: "high",
-      check: false,
-      id: uuidv4(),
-    },
-    {
-      todo: "haggyn puta",
-      priority: "none",
-      check: false,
-      id: uuidv4(),
-    },
-    {
-      todo: "gabo black",
-      priority: "medium",
-      check: false,
-      id: uuidv4(),
-    },
-  ];
+    };
+    setTodoList([...todoList, newTodo]);
+    setTodo("");
+    setPriority("none");
+  };
+
+  const checkTodo = (todoId: string) => {
+    setTodoList((prev) =>
+      prev.map((todo) =>
+        todoId === todo.id ? { ...todo, check: !todo.check } : todo
+      )
+    );
+  };
+
+  // delete todo
+  const handleDelete = (todoId: string) => {
+    setTodoList((prev) => prev.filter((todo) => todo.id !== todoId));
+  };
+
   return (
-    <div className="relative flex flex-col min-h-screen overflow-hidden">
+    <div
+      className={`${
+        dark ? "dark bg-[#51087E]" : "bg-[#d599fa]"
+      } min-h-screen duration-300 transition-colors relative flex flex-col overflow-hidden`}
+    >
       <Svg dark={dark} />
-      <Nav dark={dark} setDark={setDark} />
+      <Nav dark={dark} setDark={() => setDark(!dark)} />
       <div className="flex flex-col md:flex-row md:justify-around">
-        <Task dark={dark} />
-        <PriorityTodo dark={dark} todos={testTodos} />
-        <DoneTodo todos={testTodos.filter((todo) => todo.check === true)} />
+        <Task
+          dark={dark}
+          todo={todo}
+          priority={priority}
+          handleTodo={handleTodo}
+          handlePriority={handlePriority}
+          addTodo={addTodo}
+        />
+        <PriorityContainer
+          dark={dark}
+          todos={todoList}
+          checkTodo={checkTodo}
+          handleDelete={handleDelete}
+        />
+        <DoneTodo todos={todoList.filter((todo) => todo.check === true)} />
       </div>
     </div>
   );

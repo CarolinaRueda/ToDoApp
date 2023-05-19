@@ -2,11 +2,6 @@ import { FC } from "react";
 import { BsSunFill, BsMoonStarsFill } from "react-icons/bs";
 import Logo from "/Logo.png";
 
-interface NavProps {
-  dark: boolean;
-  setDark: () => void;
-}
-
 const Nav: FC<NavProps> = ({ dark, setDark }) => {
   return (
     <nav className="relative top-0 left-0 w-screen flex justify-between py-4 px-8 items-center">

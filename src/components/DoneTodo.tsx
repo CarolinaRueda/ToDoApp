@@ -1,16 +1,6 @@
 import { FC } from "react";
 import { BsFillCheckCircleFill, BsCheck } from "react-icons/bs";
 
-interface ITodo {
-  todo: string;
-  priority: string;
-  check: boolean;
-}
-
-interface DoneTodoProps {
-  todos: ITodo[];
-}
-
 const DoneTodo: FC<DoneTodoProps> = ({ todos }) => {
   return (
     <div className="relative m-3 md:mr-3 dark:text-white z-10">
@@ -21,14 +11,18 @@ const DoneTodo: FC<DoneTodoProps> = ({ todos }) => {
           </h2>
           <BsFillCheckCircleFill className="ml-2 bg-[#780fb9] text-[#DEBAD6] dark:bg-[#DEBAD6] dark:text-[#780fb9]" />
         </div>
-        {todos.map((todo, idx) => (
-          <div key={idx}>
-            <p className="flex items-center m-2">
-              <BsCheck className="mr-2 text-[#780fb9] dark:text-[#debad6]" />
-              {todo.todo}
-            </p>
-          </div>
-        ))}
+        {todos.length > 0 ? (
+          todos.map((todo) => (
+            <div key={todo.id}>
+              <p className="flex items-center m-2">
+                <BsCheck className="mr-2 text-[#780fb9] dark:text-[#debad6]" />
+                {todo.todo}
+              </p>
+            </div>
+          ))
+        ) : (
+          <p className="text-center">Has not yet carried out any ToDo.</p>
+        )}
       </div>
     </div>
   );
